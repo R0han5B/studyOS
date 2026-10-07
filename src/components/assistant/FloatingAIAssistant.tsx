@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { Loader2, Send, Sparkles, X } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -213,12 +214,27 @@ export function FloatingAIAssistant() {
               {messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`rounded-lg px-3 py-2 text-sm ${
+                  className={`max-w-full break-words rounded-lg px-3 py-2 text-sm leading-6 ${
                     message.role === 'user' ? 'text-white ml-10' : 'bg-muted mr-8'
                   }`}
                   style={message.role === 'user' ? { backgroundColor: 'var(--accent-500)' } : undefined}
                 >
-                  {message.text}
+                  {message.role === 'assistant' ? (
+                    <ReactMarkdown
+                      components={{
+                        p: ({ children }) => <p className="mb-3 last:mb-0">{children}</p>,
+                        ol: ({ children }) => <ol className="mb-3 list-decimal space-y-2 pl-5 last:mb-0">{children}</ol>,
+                        ul: ({ children }) => <ul className="mb-3 list-disc space-y-2 pl-5 last:mb-0">{children}</ul>,
+                        li: ({ children }) => <li className="pl-1">{children}</li>,
+                        strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                        code: ({ children }) => <code className="rounded bg-background/70 px-1 py-0.5 text-[0.9em]">{children}</code>,
+                      }}
+                    >
+                      {message.text}
+                    </ReactMarkdown>
+                  ) : (
+                    message.text
+                  )}
                 </div>
               ))}
             </div>
