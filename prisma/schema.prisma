@@ -1,0 +1,163 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  email          String   @unique
+  password       String?
+  name           String?
+  avatar         String?
+  role           String   @default("user")
+  refreshToken   String?
+  oauthProvider  String?
+  oauthId        String?
+  timezone       String   @default("UTC")
+  theme          String   @default("system")
+  notificationPrefs String @default("{}")
+  targetRole      String?
+  careerGoal      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  // Relations
+  tasks            Task[]
+  studySessions    StudySession[]
+  productivityLogs ProductivityLog[]
+  skills           Skill[]
+  schedules        Schedule[]
+  focusSessions    FocusSession[]
+  resumeProfile    ResumeProfile?
+}
+
+model Task {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  status      String    @default("pending")
+  priority    String    @default("medium")
+  dueDate     DateTime?
+  completedAt DateTime?
+  subject     String?
+  tags        String?
+  order       Int       @default(0)
+  estimatedMinutes Int?
+  actualMinutes Int?
+  userId      String    @db.ObjectId
+  user        User      @relation(fields: [userId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([userId, status])
+  @@index([userId, dueDate])
+}
+
+model StudySession {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  subject     String
+  topic       String?
+  startTime   DateTime
+  endTime     DateTime?
+  duration    Int       @default(0)
+  focusScore  Float?
+  notes       String?
+  productivity Int      @default(0)
+  userId      String    @db.ObjectId
+  user        User      @relation(fields: [userId], references: [id])
+  createdAt   DateTime  @default(now())
+  
+  @@index([userId, startTime])
+}
+
+model ProductivityLog {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  date             DateTime
+  studyHours       Float    @default(0)
+  tasksCompleted   Int      @default(0)
+  focusScore       Float    @default(0)
+  pomodoroSessions Int      @default(0)
+  peakHours        String?
+  mood             Int?
+  notes            String?
+  userId           String   @db.ObjectId
+  user             User     @relation(fields: [userId], references: [id])
+  createdAt        DateTime @default(now())
+  
+  @@unique([userId, date])
+}
+
+model Skill {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  category    String?
+  level       Int      @default(1)
+  progress    Float    @default(0)
+  targetLevel Int?
+  notes       String?
+  userId      String   @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([userId, category])
+}
+
+model Schedule {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  subject     String
+  startDate   DateTime
+  endDate     DateTime
+  hoursPerDay Float    @default(0)
+  difficulty  String   @default("medium")
+  priority    String   @default("medium")
+  completed   Boolean  @default(false)
+  scheduleData String?
+  aiGenerated Boolean  @default(true)
+  userId      String   @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([userId, startDate])
+}
+
+model FocusSession {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  type        String
+  duration    Int
+  startedAt   DateTime
+  endedAt     DateTime?
+  completed   Boolean  @default(false)
+  interrupted Boolean  @default(false)
+  task        String?
+  userId      String   @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  
+  @@index([userId, startedAt])
+}
+
+model ResumeProfile {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @unique @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id])
+  fullName    String?
+  phone       String?
+  location    String?
+  targetRole  String?
+  summary     String?
+  experience  String   @default("[]")
+  education   String   @default("[]")
+  projects    String   @default("[]")
+  skills      String   @default("[]")
+  resumeText  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
