@@ -46,6 +46,30 @@ function buildFallbackCoachAnswer(
   return `I can still help even though the live AI provider is unavailable right now. Based on your current records, you have ${studyHours} study hour${studyHours === 1 ? '' : 's'} tracked, a focus score around ${userData.avgFocusScore}%, and ${activeSubjects.length} active subject${activeSubjects.length === 1 ? '' : 's'}. Your current target role is ${userData.targetRole || 'not set'}. Ask me about planning, focus, revision, or prioritization and I’ll guide you from that.`;
 }
 
+function extractCoachAnswer(responseText: string): string {
+  const trimmed = responseText.trim();
+  const jsonText = trimmed.replace(/^```(?:json)?\s*|\s*```$/gi, '').trim();
+
+  try {
+    const parsed = JSON.parse(jsonText) as {
+      advice?: unknown;
+      answer?: unknown;
+      message?: unknown;
+      content?: unknown;
+    };
+
+    for (const key of ['advice', 'answer', 'message', 'content'] as const) {
+      if (typeof parsed[key] === 'string' && parsed[key].trim()) {
+        return parsed[key].trim();
+      }
+    }
+  } catch {
+    // The provider returned normal text, so use it as-is.
+  }
+
+  return trimmed;
+}
+
 // Generate AI response for study coach
 export async function generateAIResponse(
   prompt: string,
@@ -123,7 +147,9 @@ export async function generateAIInsights(userData: {
   studyTip: string;
   answer?: string;
 }> {
-  const systemPrompt = `You are an expert learning coach AI that provides personalized insights for students. You analyze student data and provide actionable advice. Always respond with valid JSON in the exact format requested. Be specific and practical in your recommendations.`;
+  const systemPrompt = userData.question
+    ? `You are a warm, practical study coach. Answer the student's question directly in natural language. Do not return JSON, object syntax, field names such as "advice", or code fences. Keep the response concise, specific, and encouraging. Use short paragraphs or a small numbered list only when it genuinely improves clarity.`
+    : `You are an expert learning coach AI that provides personalized insights for students. You analyze student data and provide actionable advice. Always respond with valid JSON in the exact format requested. Be specific and practical in your recommendations.`;
 
   const prompt = userData.question 
     ? `The student is asking: "${userData.question}"
@@ -137,7 +163,7 @@ Student Context:
 - Career Goal: ${userData.careerGoal || 'Not set'}
 - Upcoming Deadlines: ${userData.upcomingDeadlines?.map((deadline) => `${deadline.title}${deadline.subject ? ` (${deadline.subject})` : ''} due ${deadline.dueDate}`).join('; ') || 'None'}
 
-Please provide a helpful, encouraging response as their study coach. If they're asking for advice, give specific actionable recommendations based on their data.`
+Please provide a helpful, encouraging response as their study coach. If they're asking for advice, give specific actionable recommendations based on their data. Return only the response text, not JSON.`
     : `Analyze the following student data and provide personalized learning insights:
 
 Student Statistics:
@@ -184,51 +210,12 @@ Provide exactly 4-6 insights. Make sure the learningStyle percentages add up to 
     
     // If it was a question, return the answer directly
     if (userData.question) {
-      // Try to extract JSON if present
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        try {
-          const parsed = JSON.parse(jsonMatch[0]);
-          return {
-            insights: parsed.insights || [],
-            learningStyle: parsed.learningStyle || {
-              Visual: 40,
-              'Reading/Writing': 25,
-              Auditory: 20,
-              Kinesthetic: 15,
-            },
-            studyTip: parsed.studyTip || 'Take regular breaks to improve retention.',
-            answer: responseText,
-          };
-        } catch {
-          // If JSON parsing fails, return the text as answer
-          return {
-            insights: [
-              {
-                type: 'recommendation',
-                title: 'AI Coach Response',
-                description: responseText,
-                action: 'Apply these insights to your study routine',
-              },
-            ],
-            learningStyle: {
-              Visual: 40,
-              'Reading/Writing': 25,
-              Auditory: 20,
-              Kinesthetic: 15,
-            },
-            studyTip: 'Start with the most challenging subjects when your energy is highest.',
-            answer: responseText,
-          };
-        }
-      }
-      
       return {
         insights: [
           {
             type: 'recommendation',
             title: 'AI Coach Response',
-            description: responseText,
+            description: extractCoachAnswer(responseText),
             action: 'Apply these insights to your study routine',
           },
         ],
@@ -239,7 +226,7 @@ Provide exactly 4-6 insights. Make sure the learningStyle percentages add up to 
           Kinesthetic: 15,
         },
         studyTip: 'Start with the most challenging subjects when your energy is highest.',
-        answer: responseText,
+        answer: extractCoachAnswer(responseText),
       };
     }
     
