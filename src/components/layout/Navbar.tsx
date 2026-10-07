@@ -127,23 +127,22 @@ export function Navbar({ onMenuClick }: NavbarProps) {
   return (
     <header
       className={cn(
-        'fixed top-0 right-0 z-30 h-16',
+        'fixed left-16 right-0 top-0 z-30 h-16 md:left-0',
         'bg-background/80 backdrop-blur-md border-b border-border',
         'transition-all duration-200',
-        sidebarOpen ? 'left-[280px]' : 'left-[80px]'
+        sidebarOpen ? 'md:left-[280px]' : 'md:left-[80px]'
       )}
-      style={{ left: sidebarOpen ? '280px' : '80px', width: `calc(100% - ${sidebarOpen ? '280px' : '80px'})` }}
     >
-      <div className="flex items-center justify-between h-full px-6">
+      <div className="flex h-full min-w-0 items-center justify-between gap-2 px-3 sm:px-6">
         {/* Left Section - Page Title */}
-        <div className="flex items-center gap-4">
+        <div className="min-w-0 flex-1">
           <motion.div
             key={currentPage}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 items-center gap-2 sm:gap-3">
               <div
                 className="w-10 h-10 rounded-xl flex items-center justify-center"
                 style={{ backgroundColor: 'color-mix(in oklab, var(--accent-100) 80%, transparent)' }}
@@ -151,15 +150,15 @@ export function Navbar({ onMenuClick }: NavbarProps) {
                 <Icon className="w-5 h-5 text-accent-500" />
               </div>
               <div>
-                <h1 className="text-lg font-semibold">{header.title}</h1>
-                <p className="text-sm text-muted-foreground">{header.description}</p>
+                <h1 className="truncate text-base font-semibold sm:text-lg">{header.title}</h1>
+                <p className="max-w-[38vw] truncate text-xs text-muted-foreground sm:max-w-none sm:text-sm">{header.description}</p>
               </div>
             </div>
           </motion.div>
         </div>
 
         {/* Right Section */}
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-3">
           {/* Search */}
           <div className="relative hidden md:block">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />

@@ -33,6 +33,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { Separator } from '@/components/ui/separator';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface NavItem {
   id: PageType;
@@ -88,6 +89,8 @@ const navItems: NavItem[] = [
 
 export function Sidebar() {
   const { user, currentPage, setCurrentPage, setSettingsTab, sidebarOpen, setSidebarOpen, logout } = useStore();
+  const isMobile = useIsMobile();
+  const sidebarExpanded = sidebarOpen && !isMobile;
   const { theme, resolvedTheme, setTheme } = useTheme();
 
   const handleLogout = async () => {
@@ -114,7 +117,7 @@ export function Sidebar() {
       <motion.aside
         initial={false}
         animate={{
-          width: sidebarOpen ? 280 : 80,
+          width: sidebarExpanded ? 280 : 64,
         }}
         transition={{ duration: 0.2, ease: 'easeInOut' }}
         className={cn(
@@ -137,7 +140,7 @@ export function Sidebar() {
               <BookOpen className="w-5 h-5 text-white" />
             </div>
             <AnimatePresence>
-              {sidebarOpen && (
+              {sidebarExpanded && (
                 <motion.div
                   initial={{ opacity: 0, width: 0 }}
                   animate={{ opacity: 1, width: 'auto' }}
@@ -193,7 +196,7 @@ export function Sidebar() {
                       isActive && 'text-accent-500'
                     )} />
                     <AnimatePresence>
-                      {sidebarOpen && (
+                      {sidebarExpanded && (
                         <motion.span
                           initial={{ opacity: 0, width: 0 }}
                           animate={{ opacity: 1, width: 'auto' }}
@@ -207,7 +210,7 @@ export function Sidebar() {
                         </motion.span>
                       )}
                     </AnimatePresence>
-                    {isActive && sidebarOpen && (
+                    {isActive && sidebarExpanded && (
                       <motion.div
                         layoutId="activeNav"
                         className="ml-auto w-1.5 h-1.5 rounded-full bg-accent-500"
@@ -215,7 +218,7 @@ export function Sidebar() {
                     )}
                   </motion.button>
                 </TooltipTrigger>
-                {!sidebarOpen && (
+                {!sidebarExpanded && (
                   <TooltipContent side="right" className="flex flex-col">
                     <span className="font-medium">{item.label}</span>
                     <span className="text-xs text-muted-foreground">
@@ -258,7 +261,7 @@ export function Sidebar() {
               >
                 <Settings className="w-5 h-5 flex-shrink-0" />
                 <AnimatePresence>
-                  {sidebarOpen && (
+                  {sidebarExpanded && (
                     <motion.span
                       initial={{ opacity: 0, width: 0 }}
                       animate={{ opacity: 1, width: 'auto' }}
@@ -271,7 +274,7 @@ export function Sidebar() {
                 </AnimatePresence>
               </motion.button>
             </TooltipTrigger>
-            {!sidebarOpen && (
+            {!sidebarExpanded && (
               <TooltipContent side="right">
                 <span>Settings & Preferences</span>
               </TooltipContent>
@@ -297,7 +300,7 @@ export function Sidebar() {
                   <Sun className="w-5 h-5 flex-shrink-0" />
                 )}
                 <AnimatePresence>
-                  {sidebarOpen && (
+                  {sidebarExpanded && (
                     <motion.span
                       initial={{ opacity: 0, width: 0 }}
                       animate={{ opacity: 1, width: 'auto' }}
@@ -310,7 +313,7 @@ export function Sidebar() {
                 </AnimatePresence>
               </motion.button>
             </TooltipTrigger>
-            {!sidebarOpen && (
+            {!sidebarExpanded && (
               <TooltipContent side="right">
                 <span>Toggle Theme</span>
               </TooltipContent>
@@ -333,7 +336,7 @@ export function Sidebar() {
                 </AvatarFallback>
               </Avatar>
               <AnimatePresence>
-                {sidebarOpen && (
+                {sidebarExpanded && (
                   <motion.div
                     initial={{ opacity: 0, width: 0 }}
                     animate={{ opacity: 1, width: 'auto' }}
@@ -363,7 +366,7 @@ export function Sidebar() {
               >
                 <LogOut className="w-5 h-5 flex-shrink-0" />
                 <AnimatePresence>
-                  {sidebarOpen && (
+                {sidebarExpanded && (
                     <motion.span
                       initial={{ opacity: 0, width: 0 }}
                       animate={{ opacity: 1, width: 'auto' }}
@@ -376,7 +379,7 @@ export function Sidebar() {
                 </AnimatePresence>
               </motion.button>
             </TooltipTrigger>
-            {!sidebarOpen && (
+            {!sidebarExpanded && (
               <TooltipContent side="right">
                 <span>Logout</span>
               </TooltipContent>
@@ -386,9 +389,9 @@ export function Sidebar() {
 
         {/* Toggle Button */}
         <motion.button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
+          onClick={() => setSidebarOpen(!sidebarExpanded)}
           className={cn(
-            'absolute -right-3 top-20',
+            'absolute -right-3 top-20 hidden md:flex',
             'w-6 h-6 rounded-full',
             'bg-background border border-border',
             'flex items-center justify-center',
@@ -399,7 +402,7 @@ export function Sidebar() {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
         >
-          {sidebarOpen ? (
+          {sidebarExpanded ? (
             <ChevronLeft className="w-3 h-3" />
           ) : (
             <ChevronRight className="w-3 h-3" />

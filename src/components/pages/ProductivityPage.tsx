@@ -423,16 +423,16 @@ export function ProductivityPage() {
           <CardContent>
             <Tabs value={timerType} onValueChange={(v) => switchTimerType(v as 'work' | 'shortBreak' | 'longBreak')} className="mb-8">
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="work" className="gap-2" disabled={Boolean(selectedPlannedSession)}>
-                  <Brain className="w-4 h-4" />
+                <TabsTrigger value="work" className="gap-1 px-1 text-xs sm:gap-2 sm:px-2 sm:text-sm" disabled={Boolean(selectedPlannedSession)}>
+                  <Brain className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   Focus
                 </TabsTrigger>
-                <TabsTrigger value="shortBreak" className="gap-2" disabled={Boolean(selectedPlannedSession)}>
-                  <Coffee className="w-4 h-4" />
+                <TabsTrigger value="shortBreak" className="gap-1 px-1 text-xs sm:gap-2 sm:px-2 sm:text-sm" disabled={Boolean(selectedPlannedSession)}>
+                  <Coffee className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   Short Break
                 </TabsTrigger>
-                <TabsTrigger value="longBreak" className="gap-2" disabled={Boolean(selectedPlannedSession)}>
-                  <Coffee className="w-4 h-4" />
+                <TabsTrigger value="longBreak" className="gap-1 px-1 text-xs sm:gap-2 sm:px-2 sm:text-sm" disabled={Boolean(selectedPlannedSession)}>
+                  <Coffee className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   Long Break
                 </TabsTrigger>
               </TabsList>

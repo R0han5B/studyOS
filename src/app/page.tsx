@@ -160,15 +160,15 @@ export default function HomePage() {
       {/* Main Content */}
       <div
         className={cn(
-          'transition-all duration-200',
-          sidebarOpen ? 'ml-[280px]' : 'ml-[80px]'
+          'ml-16 transition-all duration-200 md:ml-0',
+          sidebarOpen ? 'md:ml-[280px]' : 'md:ml-[80px]'
         )}
       >
         {/* Navbar */}
         <Navbar />
         
         {/* Page Content */}
-        <main className="pt-16 p-6 min-h-screen">
+        <main className="min-h-screen overflow-x-hidden p-3 pt-20 sm:p-6 sm:pt-20">
           <PageTransition pageKey={currentPage}>
             <div className="max-w-7xl mx-auto">
               {renderPage()}

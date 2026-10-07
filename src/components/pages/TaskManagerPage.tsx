@@ -251,7 +251,7 @@ export function TaskManagerPage() {
             className="pl-9"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {(['all', 'pending', 'in_progress', 'completed'] as const).map((filter) => (
             <Button
               key={filter}
